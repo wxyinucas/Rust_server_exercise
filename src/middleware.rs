@@ -6,10 +6,17 @@ use std::task::{Context, Poll};
 use http::Request;
 use tower_layer::Layer;
 use tower_service::Service;
+use tracing::{debug, error, warn};
 use crate::MyResponse;
 
 pub struct LogLayer {
     pub(crate) target: &'static str,
+}
+
+impl LogLayer{
+    pub fn new(target: &'static str) -> Self {
+        Self { target }
+    }
 }
 
 impl<S> Layer<S> for LogLayer {
@@ -24,6 +31,7 @@ impl<S> Layer<S> for LogLayer {
 }
 
 // This service implements the Log behavior
+#[derive(Clone, Debug)]
 pub struct LogService<S> {
     target: &'static str,
     service: S,
@@ -44,7 +52,8 @@ impl<S, Request> Service<Request> for LogService<S>
 
     fn call(&mut self, request: Request) -> Self::Future {
         // Insert log statement here or other functionality
-        println!("request = {:?}, target = {:?}", request, self.target);
+        debug!("Hello World!"); // TODO 搞不懂
+        warn!("request = {:?}, target = {:?}", request, self.target);
         self.service.call(request)
     }
 }

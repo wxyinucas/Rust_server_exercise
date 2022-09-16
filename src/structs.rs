@@ -11,7 +11,7 @@ pub struct MyResponse {
     pub tail: String,
 }
 
-impl IntoResponse for MyResponse { // TODO 注意结构
+impl IntoResponse for MyResponse { // TODO 注意Response的结构
     fn into_response(self) -> Response {
         (StatusCode::OK, Json(json!(self))).into_response()
     }

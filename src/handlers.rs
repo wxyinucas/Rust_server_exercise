@@ -12,17 +12,16 @@ pub async fn plain_text() -> &'static str {
     "foo"
 }
 
-// `Json` gives a content-type of `application/json` and works with any type
-// that implements `serde::Serialize`
 pub async fn json() -> Json<Value> {
     Json(json!({ "data": 42 }))
 }
 
-pub async fn my_response() -> impl IntoResponse { // TODO 注意这里
-    let my = MyResponse { head: "head value".to_string(), tail: "tail value".to_string() };
-
-    (StatusCode::OK, Json(json!(my))) // TODO 注意这里
-}
+// 暂时不需要，应为将核心功能转移到MyResponse的impl中了。
+// pub async fn my_response() -> impl IntoResponse { // TODO 注意这里
+//     let my = MyResponse { head: "head value".to_string(), tail: "tail value".to_string() };
+//
+//     (StatusCode::OK, Json(json!(my))) // TODO 注意这里
+// }
 
 
 pub async fn my_response_input(Path((head, tail)): Path<(String, String)>) -> MyResponse {
