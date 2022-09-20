@@ -3,7 +3,8 @@
 mod structs;
 mod handlers;
 mod extractor;
-mod middleware;
+mod middlewares;
+mod services;
 
 use axum::Router;
 use axum::routing::{get, post};
@@ -12,8 +13,9 @@ use tower_http::trace::TraceLayer;
 use tracing::warn;
 pub use structs::{MyResponse};
 use crate::extractor::UserAgentInfo;
-use crate::handlers::{json,  my_response_input, plain_text};
-use crate::middleware::LogLayer;
+use crate::handlers::{json, my_response_input, plain_text};
+use crate::middlewares::logger_middleware::LogLayer;
+use crate::middlewares::plain_middleware::PlainLayer;
 
 
 #[tokio::main]
@@ -29,8 +31,9 @@ async fn main() {
         // .route("/my", get(my_response))
         .route("/my/:head/:tail", get(my_response_input))
         .layer(TraceLayer::new_for_http())
-        .layer(axum::middleware::from_extractor::<UserAgentInfo>())
-        .layer(LogLayer::new("jkj"))
+        // .layer(axum::middleware::from_extractor::<UserAgentInfo>())
+        // .layer(LogLayer::new("wmm"))
+        .layer(PlainLayer::new("wxy"))
         ;
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap()).serve(app.into_make_service()).await.unwrap();

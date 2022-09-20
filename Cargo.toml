@@ -4,21 +4,33 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "client"
+path = "src/bin/client.rs"
+
+
 
 [dependencies]
+futures = "0.3"
 axum = { version = "0.5" }
 axum-macros = "0.2"
 tower = "0.4"
 tower-service = "0.3"
 tower-layer = "0.3"
-tower-http = {version="0.3", features = ["full"]}
+tower-http = { version = "0.3", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
-serde = {version = "1", features = ["derive"]}
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 http = "0.2"
+http-body = "0.4"
 
-tracing="*"
+tracing = "*"
 tracing-subscriber = "0.3"
 
 
 async-trait = "0.1"
+base64 = "0.13"
+
+hyper = { version = "0.14", features = ["full"] }
+anyhow = "1"
+bytes = "1"

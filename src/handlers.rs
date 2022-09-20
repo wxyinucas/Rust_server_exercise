@@ -1,3 +1,5 @@
+use std::thread::sleep;
+use std::time::Duration;
 use axum::extract::Path;
 use axum::Json;
 use axum::response::IntoResponse;
@@ -26,7 +28,9 @@ pub async fn json() -> Json<Value> {
 
 pub async fn my_response_input(Path((head, tail)): Path<(String, String)>) -> MyResponse {
     // 《在axum中获取请求数据》
-    // TODO 注意这里
+    // TODO 注意input
+
+    sleep(Duration::from_secs(5));
     warn!("{}", head);
     MyResponse { head, tail }
 }
