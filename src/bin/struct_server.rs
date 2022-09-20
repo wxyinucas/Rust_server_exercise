@@ -79,7 +79,7 @@ struct HelloWorld;
 impl Service<Request<Body>> for HelloWorld {
     type Response = Response<Full<Bytes>>;
     type Error = hyper::Error;
-    type Future = Pin<Box<dyn Future<Output=Result<Self::Response, Self::Error>> + Send>>;
+    type Future = Pin<Box<dyn Future<Output=Result<Self::Response, Self::Error>> + Send>>; // Todo 加了Send就没错了
 
     fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(Ok(()))
