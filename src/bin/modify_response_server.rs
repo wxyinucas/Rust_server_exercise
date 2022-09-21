@@ -11,28 +11,26 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use http_body::Full;
 use tower_http::follow_redirect::policy::PolicyExt;
+use tracing::warn;
 
 type Counter = i32;
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt::init();
+
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
     println!("Listening on http://{}", addr);
 
-    // let make_svc = make_service_fn(|_conn| async { // TODO 如何使用Struct！还有router的make_into_service
-    //     Ok::<_, Infallible>(HelloWorld)
-    // });
-
-    let make_svc = make_service_fn(|_conn| async move{ // TODO 如何使用Struct！还有router的make_into_service
-        let hello = HelloWorld::new();
-        Ok::<_, Infallible>(hello)
+    let make_svc = make_service_fn(|_conn| async { // TODO 如何使用Struct！还有router的make_into_service
+        Ok::<_, Infallible>(HelloWorld)
     });
 
     axum::Server::bind(&addr).serve(make_svc).await.unwrap();
 }
 
-#[derive(Clone)]
+
 struct HelloWorld;
 
 impl HelloWorld {
@@ -61,6 +59,7 @@ impl Service<Request<Body>> for HelloWorld {
 
         // create a response in a future.
         let fut = async {
+            warn!("{:?}", resp.body());
             Ok(resp)
         };
 

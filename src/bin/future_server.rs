@@ -10,7 +10,9 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use http_body::Full;
+use pin_project::pin_project;
 use tower_http::follow_redirect::policy::PolicyExt;
+use tracing::warn;
 
 type Counter = i32;
 
@@ -20,19 +22,14 @@ async fn main() {
 
     println!("Listening on http://{}", addr);
 
-    // let make_svc = make_service_fn(|_conn| async { // TODO 如何使用Struct！还有router的make_into_service
-    //     Ok::<_, Infallible>(HelloWorld)
-    // });
-
-    let make_svc = make_service_fn(|_conn| async move{ // TODO 如何使用Struct！还有router的make_into_service
-        let hello = HelloWorld::new();
-        Ok::<_, Infallible>(hello)
+    let make_svc = make_service_fn(|_conn| async { // TODO 如何使用Struct！
+        Ok::<_, Infallible>(HelloWorld)
     });
 
     axum::Server::bind(&addr).serve(make_svc).await.unwrap();
 }
 
-#[derive(Clone)]
+
 struct HelloWorld;
 
 impl HelloWorld {
@@ -44,7 +41,7 @@ impl HelloWorld {
 impl Service<Request<Body>> for HelloWorld {
     type Response = Response<Full<Bytes>>;
     type Error = hyper::Error;
-    type Future = Pin<Box<dyn Future<Output=Result<Self::Response, Self::Error>> + Send>>;
+    type Future = MyFuture<dyn Future<Output=Result<Self::Response, Self::Error>>>;
 
     fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(Ok(()))
@@ -65,8 +62,32 @@ impl Service<Request<Body>> for HelloWorld {
         };
 
         // Return the response as an immediate future
-        Box::pin(fut)
+        MyFuture { inner_future: fut }
     }
 }
 
 // Pin<Box<dyn Future<Output=Result<Self::Response, Self::Error>> + Send>>
+
+#[pin_project]
+struct MyFuture<F> {  // todo failed
+    #[pin]
+    inner_future: F,
+
+}
+
+impl<F, Response, Error> Future for MyFuture<F>
+    where F: Future<Output=Result<Response, Error>> {
+    type Output = Result<Response, Error>;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let this = self.project();
+
+        match this.inner_future.poll(cx) {
+            Poll::Ready(Ok(resp)) => {
+                warn!("{:?}", resp);
+                return Poll::Ready(Ok(resp));
+            }
+            Poll::Pending => Poll::Pending
+        }
+    }
+}

@@ -15,6 +15,7 @@ pub use structs::{MyResponse};
 use crate::extractor::UserAgentInfo;
 use crate::handlers::{json, my_response_input, plain_text};
 use crate::middlewares::logger_middleware::LogLayer;
+use crate::middlewares::modify_res::ModifyLayer;
 use crate::middlewares::plain_middleware::PlainLayer;
 
 
@@ -28,12 +29,12 @@ async fn main() {
     let app = Router::new()
         .route("/plain_text", get(plain_text))
         .route("/json", get(json))
-        // .route("/my", get(my_response))
         .route("/my/:head/:tail", get(my_response_input))
         .layer(TraceLayer::new_for_http())
         // .layer(axum::middleware::from_extractor::<UserAgentInfo>())
         // .layer(LogLayer::new("wmm"))
-        .layer(PlainLayer::new("wxy"))
+        .layer(ModifyLayer::new("wxy"))
+        .layer(PlainLayer::new("wmm"))
         ;
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap()).serve(app.into_make_service()).await.unwrap();
