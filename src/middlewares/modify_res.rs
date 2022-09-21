@@ -43,6 +43,8 @@ impl<S, B> Service<Request<B>> for ModifyService<S>
 where
     S: Service<Request<B>>,
     S: Clone,
+    <S as Service<Request<B>>>::Future: std::marker::Send, // todo why send
+    <S as Service<Request<B>>>::Future: 'static, //todo why 'static?
     B: fmt::Debug,
     S::Response: fmt::Debug,
 {
@@ -64,8 +66,9 @@ where
         let fut = this.service.call(request);
 
         let f = async move {
-            // let res = fut.await?;
-            // warn!("response = {:?}", res);
+            // TODO using this to solve lifetime problems
+            let res = fut.await?;
+            warn!("response = {:?}", res);
             Ok(Response::builder()
                 .body(Full::new(Bytes::from(this.target)))
                 .expect("error"))
