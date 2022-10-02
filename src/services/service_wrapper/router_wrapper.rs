@@ -53,10 +53,13 @@ where
 
         let f = async move {
             let tmp = fut.await;
-            error!("Router's result's body = {:?}", tmp.expect("should have body").into_body().await);
-            let res = MyResponse::from("test string").into_response();
+            error!(
+                "Router's result's body = {:?}",
+                tmp.expect("should have body").into_body().data().await
+            );
+            let res = MyResponse::from("test string");
             error!("After operation, new response = {:?}", res);
-            Ok(res)
+            Ok(res.into_response())
         };
 
         Box::pin(f)
