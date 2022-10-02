@@ -44,13 +44,13 @@ where
     S: Service<Request<B>>,
     S: Clone,
     <S as Service<Request<B>>>::Future: std::marker::Send, // todo why send
-    <S as Service<Request<B>>>::Future: 'static, //todo why 'static?
+    <S as Service<Request<B>>>::Future: 'static,           //todo why 'static?
     B: fmt::Debug,
     S::Response: fmt::Debug,
 {
     type Response = Response<Full<Bytes>>;
     type Error = S::Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;// todo why send here?
+    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>; // todo why send here?
 
     fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         self.service.poll_ready(cx)

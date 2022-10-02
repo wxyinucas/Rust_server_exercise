@@ -1,1 +1,3 @@
-mod plain_services;
+mod router_wrapper;
+
+pub use router_wrapper::MyService;

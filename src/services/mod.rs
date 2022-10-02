@@ -1,2 +1,2 @@
-mod service_wrapper;
-mod middlewares;
+pub(crate) mod middlewares;
+pub(crate) mod service_wrapper;

@@ -1,20 +1,19 @@
+use crate::MyResponse;
+use axum::extract::Path;
+use axum::response::IntoResponse;
+use axum::Json;
+use axum_macros::debug_handler;
+use http::{Response, StatusCode};
+use serde_json::{json, Value};
 use std::thread::sleep;
 use std::time::Duration;
-use axum::extract::Path;
-use axum::Json;
-use axum::response::IntoResponse;
-use http::{Response, StatusCode};
-use crate::{MyResponse};
-use axum_macros::debug_handler;
-use serde_json::{json, Value};
 use tracing::warn;
-
 
 pub async fn plain_text() -> &'static str {
     "foo"
 }
 
-pub async fn json() -> Json<Value> {
+pub async fn json_handler() -> Json<Value> {
     Json(json!({ "data": 42 }))
 }
 
@@ -25,12 +24,11 @@ pub async fn json() -> Json<Value> {
 //     (StatusCode::OK, Json(json!(my))) // TODO 注意这里
 // }
 
-
-pub async fn my_response_input(Path((head, tail)): Path<(String, String)>) -> MyResponse {
+pub async fn my_response_with_input(Path((head, tail)): Path<(String, String)>) -> MyResponse {
     // 《在axum中获取请求数据》
-    // TODO 注意input
+    // TODO 注意input中Path以及其他解包方式
 
-    sleep(Duration::from_secs(5));
+    sleep(Duration::from_secs(1));
     warn!("{}", head);
-    MyResponse { head, tail }
+    (format!("{}-{}", head, tail).as_str()).into()
 }

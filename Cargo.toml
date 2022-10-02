@@ -33,5 +33,6 @@ base64 = "0.13"
 
 hyper = { version = "0.14", features = ["full"] }
 anyhow = "1"
+thiserror = "1"
 bytes = "1"
 pin-project = "1"
