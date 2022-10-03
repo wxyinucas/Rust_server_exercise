@@ -4,6 +4,7 @@ use axum::routing::{get, post};
 use axum::Router;
 use hyper::service::make_service_fn;
 use std::convert::Infallible;
+use axum::handler::Handler;
 use test_server::{json_handler, my_response_with_input, plain_text, ModifyLayer, MyService};
 use tower_http::trace::TraceLayer;
 use tower_layer::layer_fn;
@@ -16,17 +17,24 @@ async fn main() {
     }
     tracing_subscriber::fmt().init();
 
-    let make_svc = make_service_fn(|_conn| async move {
-        let app = Router::new()
-            .route("/plain_text", get(plain_text))
-            .route("/json", get(json_handler))
-            .route("/my/:head/:tail", get(my_response_with_input));
-        let service = MyService::from_router(app);
-        Ok::<_, Infallible>(service)
-    });
+    // let make_svc = make_service_fn(|_conn| async move {
+    //     let app = Router::new()
+    //         .route("/plain_text", get(plain_text))
+    //         .route("/json", get(json_handler))
+    //         .route("/my/:head/:tail", get(my_response_with_input));
+    //     let service = MyService::from_router(app);
+    //     Ok::<_, Infallible>(service)
+    // });
+    let app = Router::new()
+        .route("/plain_text", get(plain_text))
+        .route("/json", get(json_handler))
+        .route("/my/:head/:tail", get(my_response_with_input));
+    let service = MyService::from_router(app);
+
 
     axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
-        .serve(make_svc)
+        // .serve(make_svc)
+        .serve(service.into_make_service())
         .await
         .unwrap();
 }

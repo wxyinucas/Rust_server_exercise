@@ -1,6 +1,7 @@
 use crate::{MyError, MyResponse};
 use axum::body::HttpBody;
 use axum::response::{IntoResponse, Response};
+use axum::routing::IntoMakeService;
 use axum::Router;
 use http::Request;
 use std::fmt::Debug;
@@ -20,7 +21,10 @@ impl<B> MyService<B> {
         Self { router }
     }
 
-    // pub fn make_into_service()
+    // todo make_into_service()
+    pub fn into_make_service(self) -> IntoMakeService<Self> {
+        IntoMakeService::new(self)
+    }
 }
 
 impl<B> Clone for MyService<B> {
